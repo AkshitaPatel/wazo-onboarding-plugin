@@ -1,5 +1,7 @@
 import logging
 
+from wazo_amid_client import Client as AmidClient
+from .http import OnboardingResource
 
 logger = logging.getLogger(__name__)
 
@@ -7,13 +9,14 @@ logger = logging.getLogger(__name__)
 class Plugin:
     def load(self, dependencies):
         # registering API endpoint
-        router = dependencies['router']
-        router.add_get('/onboarding', self.onboarding)
-        logger.info('Onboarding plugin loaded')
+        api = dependencies['api']
+        config = dependencies['config']
+        token_changed_subscribe = dependencies['token_changed_subscribe']
+        
+        amid_client = AmidClient(**config['amid'])
 
-    def unload(self):
-        logger.info('Onboarding Plugin unloaded')
+        token_changed_subscribe(amid_client.set_token)
 
-    def onboarding(self, request):
-        logger.info('Monkey')
-        return 'Onboarding successful'
+        api.add_resource(
+            OnboardingResource, '/onboarding/<call_tech>/<call_id>', resource_class_args=[amid_client]
+        )

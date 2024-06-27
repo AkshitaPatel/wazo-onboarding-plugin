@@ -1,0 +1,11 @@
+basePath: /1.0
+paths:
+  /onboarding:
+    get:
+      produces:
+        - application/json
+      summary: Print Hello
+      description: '**Required ACL:** `calld.onboarding.read`'
+      responses:
+        '200':
+          'description': The start of the service
